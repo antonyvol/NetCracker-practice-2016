@@ -1,6 +1,5 @@
 public class Main {
 
-
     public enum Direction {
         NORTH, EAST, SOUTH, WEST
     }
@@ -8,8 +7,6 @@ public class Main {
     public enum CellState {
         FREE, OCCUPIED
     }
-
-
 
     public interface Movable {
         void move(int x, int y);
@@ -20,76 +17,151 @@ public class Main {
     }
 
 
-
-    public class GroundVisorExeption extends RuntimeException {
-        GroundVisorExeption() {
+    public static class GroundVisorException extends RuntimeException {
+        GroundVisorException() {
             super();
         }
-        GroundVisorExeption(String message) {
+        GroundVisorException(String message) {
             super(message);
         }
     }
 
-    public class GroundCell {
+    public static class GroundCell {
         private CellState state;
         private int x;
         private int y;
 
-        GroundCell() {
+        public CellState getState() {
+            return state;
+        }
+
+        public void setState(CellState state) {
+            this.state = state;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        GroundCell(int x, int y) {
+            this.x = x;
+            this.y = y;
             state = CellState.FREE;
         }
     }
 
-    public class Ground {
+    public static class Ground {
         private GroundCell[][] landscape;
         private int length;
         private int width;
 
+        public CellState getCellState(int x, int y) {
+            return landscape[x][y].getState();
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getLength() {
+            return length;
+        }
+
+        public void setLength(int length) {
+            this.length = length;
+        }
+
         Ground(int length, int width) {
             this.length = length;
             this.width = width;
+            landscape = new GroundCell[length][width];
 
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < length; j++) {
-                    landscape[i][j] = new GroundCell();
+            for (int i = 0; i < length; i++) {
+                for (int j = 0; j < width; j++) {
+                    landscape[i][j] = new GroundCell(i, j);
                 }
             }
         }
     }
 
-    public class GroundVisor {
+    public static class GroundVisor {
         private Ground ground;
 
-        // not done yet
         public boolean hasObstacles(int x, int y) {
-            try {
-                if (x > ground.length || y > ground.width) {
-                    throw new GroundVisorExeption();
-                }
-            } catch(GroundVisorExeption gve) {
-                System.err.println(gve.toString() + ": index out of range.");
+            if (x > ground.getLength() || y > ground.getWidth()) {
+                throw new GroundVisorException("Index out of range!");
             }
-            return true;
+            if (x < 0 || y < 0) {
+                throw new GroundVisorException("Index out of range!");
+            }
+            return ground.getCellState(x, y) == CellState.OCCUPIED;
         }
+
+        GroundVisor() { ground = new Ground(1, 1); }
+        GroundVisor(Ground ground) { this.ground = ground; }
     }
 
-    public class Rover implements Movable, Turnable {
+    public static class Rover implements Movable, Turnable {
         private Direction direction;
         private int x;
         private int y;
 
         @Override
         public void move(int x, int y) {
-
+            this.x = x;
+            this.y = y;
         }
 
         @Override
         public void turnTo(Direction direction) {
+            this.direction = direction;
+        }
 
+        Rover() {
+            x = 0;
+            y = 0;
+            direction = Direction.NORTH;
+        }
+        Rover(int x, int y) {
+            this.x = x;
+            this.y = y;
+            direction = Direction.NORTH;
+        }
+        Rover(Direction direction) {
+            this.x = 0;
+            this.y = 0;
+            this.direction = direction;
+        }
+        Rover(int x, int y, Direction direction) {
+            this.x = x;
+            this.y = y;
+            this.direction = direction;
         }
     }
 
     public static void main(String[] args) {
+        Rover rover = new Rover();
+        GroundVisor visor = new GroundVisor(new Ground(50, 50));
 
+        if (!visor.hasObstacles(14, 6)) {
+            rover.move(14, 6);
+            rover.turnTo(Direction.EAST);
+        }
     }
 }

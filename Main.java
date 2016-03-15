@@ -16,6 +16,32 @@ public class Main {
         void turnTo(Direction direction);
     }
 
+    public interface ProgramFileAware {
+        void executeProgramFile(String string);
+    }
+
+    public interface RoverCommand {
+        void execute();
+    }
+
+    public class TurnCommand implements RoverCommand {
+        TurnCommand(Turnable t) {}
+        @Override
+        public void execute() {}
+    }
+
+    public class MoveCommand implements RoverCommand {
+        MoveCommand(Movable m) {}
+        @Override
+        public void execute() {}
+    }
+
+    public static class RoverCommandParser {
+        RoverCommandParser(Rover rover) {}
+        public RoverCommand readNextCommand() {
+            return null;
+        }
+    }
 
     public static class GroundVisorException extends RuntimeException {
         GroundVisorException() {
@@ -117,10 +143,16 @@ public class Main {
         GroundVisor(Ground ground) { this.ground = ground; }
     }
 
-    public static class Rover implements Movable, Turnable {
+    public static class Rover implements Movable, Turnable, ProgramFileAware {
+        private RoverCommandParser programParser = new RoverCommandParser(this);
         private Direction direction;
         private int x;
         private int y;
+
+        @Override
+        public void executeProgramFile(String string) {
+
+        }
 
         @Override
         public void move(int x, int y) {
